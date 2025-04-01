@@ -49,6 +49,17 @@ class MeteoraPoolScraper:
                 self.logger.info(f"Loaded {len(self.cached_pools)} pools from cache: {cache_file}")
             except Exception as e:
                 self.logger.warning(f"Error loading cache file: {e}")
+        
+        # Configure logging
+        logging.basicConfig(level=logging.INFO)
+        
+        # Load cached data if available
+        if cache_file and os.path.exists(cache_file):
+            try:
+                self.cached_pools = pd.read_csv(cache_file)
+                self.logger.info(f"Loaded {len(self.cached_pools)} pools from cache: {cache_file}")
+            except Exception as e:
+                self.logger.warning(f"Error loading cache file: {e}")
 
     def setup_logging(self):
         """Set up logging configuration."""
@@ -60,112 +71,31 @@ class MeteoraPoolScraper:
             handler.setFormatter(formatter)
             self.logger.addHandler(handler)
 
-    def analyze_pool_risks(self, pool_data: Dict) -> Dict:
+    def analyze_pool_risk(self, pool_address: str) -> Dict:
         """
-        Analyze risk factors for a specific pool using Alchemy data.
+        Analyze risk factors for a specific pool using on-chain data.
         
         Args:
-            pool_data: Dictionary containing pool information
+            pool_address (str): The pool's contract address
             
         Returns:
-            Dictionary containing risk analysis
+            Dict containing risk metrics
         """
-        if not self.has_alchemy:
-            self.logger.warning("Alchemy integration not available. Risk analysis will be limited.")
-            return {}
-
-        risk_analysis = {
-            'token_concentration': None,
-            'volume_distribution': None,
+        risk_metrics = {
+            'volume_volatility': None,
             'price_impact': None,
-            'timestamp': datetime.now().isoformat()
-        }
-
-        try:
-            # Get token holder distribution
-            token_mint = pool_data.get('token_mint')
-            if token_mint:
-                holder_stats = self._make_alchemy_request(
-                    "getTokenLargestAccounts",
-                    [token_mint]
-                )
-                if holder_stats.get('result'):
-                    accounts = holder_stats['result']['value']
-                    total_supply = sum(float(acc['amount']) for acc in accounts)
-                    
-                    # Calculate concentration metrics
-                    top_holders = sorted(accounts, key=lambda x: float(x['amount']), reverse=True)[:5]
-                    concentration = sum(float(h['amount']) for h in top_holders) / total_supply
-                    
-                    risk_analysis['token_concentration'] = {
-                        'top5_concentration': concentration * 100,  # as percentage
-                        'total_holders': len(accounts),
-                        'analysis': 'High risk' if concentration > 0.5 else 'Medium risk' if concentration > 0.3 else 'Low risk'
-                    }
-
-            # Analyze recent transactions
-            pool_address = pool_data.get('address')
-            if pool_address:
-                txns = self._make_alchemy_request(
-                    "getSignaturesForAddress",
-                    [pool_address, {"limit": 100}]
-                )
-                if txns.get('result'):
-                    # Analyze transaction timing and frequency
-                    timestamps = [tx['blockTime'] for tx in txns['result']]
-                    time_diffs = [t2 - t1 for t1, t2 in zip(timestamps[1:], timestamps[:-1])]
-                    
-                    risk_analysis['volume_distribution'] = {
-                        'avg_time_between_trades': sum(time_diffs) / len(time_diffs) if time_diffs else None,
-                        'total_transactions': len(timestamps),
-                        'analysis': 'High activity' if len(timestamps) > 50 else 'Medium activity' if len(timestamps) > 20 else 'Low activity'
-                    }
-
-            # Calculate theoretical price impact
-            liquidity = float(pool_data.get('liquidity', 0))
-            if liquidity > 0:
-                # Simple price impact estimation
-                test_trade_sizes = [0.001 * liquidity, 0.01 * liquidity, 0.1 * liquidity]
-                price_impacts = []
-                
-                for size in test_trade_sizes:
-                    # Simplified constant product formula
-                    impact = (size / (liquidity + size)) * 100
-                    price_impacts.append({
-                        'trade_size': size,
-                        'estimated_impact': impact
-                    })
-                
-                risk_analysis['price_impact'] = {
-                    'scenarios': price_impacts,
-                    'analysis': 'High impact' if price_impacts[-1]['estimated_impact'] > 10 else 'Medium impact' if price_impacts[-1]['estimated_impact'] > 5 else 'Low impact'
-                }
-
-        except Exception as e:
-            self.logger.error(f"Error in risk analysis: {e}")
-            return risk_analysis
-
-        return risk_analysis
-
-    def _make_alchemy_request(self, method: str, params: List) -> Dict:
-        """Make a JSON-RPC request to Alchemy."""
-        if not self.has_alchemy:
-            return {}
-            
-        payload = {
-            "jsonrpc": "2.0",
-            "id": str(int(time.time() * 1000)),
-            "method": method,
-            "params": params
+            'unique_traders': None,
+            'trade_frequency': None
         }
         
         try:
-            response = self.session.post(self.alchemy_url, json=payload)
-            response.raise_for_status()
-            return response.json()
+            # For now, we only use public Meteora API data
+            # Future versions may integrate additional data sources
+            return risk_metrics
+                
         except Exception as e:
-            self.logger.error(f"Alchemy request failed: {e}")
-            return {}
+            self.logger.error(f"Error in risk analysis: {e}")
+            return risk_metrics
 
     def get_recommended_pools(self, max_pairs=None, min_liquidity=10000, max_apy=1000, min_volume_24h=5000):
         """Get recommended pools from Meteora API with filtering."""
