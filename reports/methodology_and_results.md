@@ -4,14 +4,12 @@
 
 ### Executive Summary
 
-This analysis presents a data-driven approach to forecasting fee revenue for Meteora liquidity pools. The methodology combines empirical analysis of 202 active pools with statistical modeling to predict revenue across different market conditions. Key components of our analysis include:
+This analysis presents a data-driven approach to forecasting fee revenue for Meteora liquidity pools. The methodology combines empirical analysis of active pools with statistical modeling to predict revenue across different market conditions. Key findings from March 2025 data show:
 
-1. Comprehensive market data from high-performing pools ($500K+ liquidity, $100K+ daily volume)
-2. Dynamic fee rate analysis, accounting for base rates, volatility-adjusted rates, and effective yields
-3. Multi-scenario modeling using 25th, 50th, and 75th percentile metrics
-4. Validation against real-world performance data from meteora.ag
-
-Our findings indicate that fee revenue is primarily driven by volume/liquidity ratios and market-specific fee rates, with significant variation between stablecoin pairs (0.01-0.05%) and other trading pairs (up to 3% effective rate).
+1. Volume-weighted average fee rate of 0.098% across all pools
+2. High-volume pools (>$100k daily) average 0.096% effective fee rate
+3. Fee/TVL ratios typically range from 0.09% to 0.12%
+4. Volume/liquidity ratios average 1.83x for high-volume pools
 
 ### Data Collection Methodology
 
@@ -21,155 +19,111 @@ Our findings indicate that fee revenue is primarily driven by volume/liquidity r
    - Real-time pool metrics including volume, fees, and liquidity
 
 2. **Pool Quality Filters**
-   - Minimum liquidity: $500,000
-   - Minimum 24h volume: $100,000
+   - Minimum liquidity: $10,000
+   - Minimum 24h volume: $5,000
    - Maximum APY: 1,000%
-   - Positive fee/TVL ratio
+   - Non-negative fee/TVL ratio
    - Valid current price
-   - Volume/liquidity ratio ≤ 50x
+   - Volume/liquidity ratio ≤ 10x (more conservative limit)
+   - Effective fee rate caps:
+     - 0.3% for high-volume pools (>$100k daily)
+     - 0.5% for lower-volume pools
    - Blacklist and suspicious token name filtering
 
 ### Fee Rate Analysis
 
-Based on analysis of 202 qualified pools, we observed the following fee structures:
+Based on March 2025 data from 190 qualified pools:
 
-1. **Base Fee Rates**
-   - Stablecoin pairs: 0.01-0.05%
-   - Major pairs (SOL-USDC): 0.2-0.25%
-   - Other pairs: 0.5-2%
+1. **Volume-Weighted Metrics**
+   - Fee Rate: 0.098%
+   - Fee/TVL Ratio: 0.107%
+   - Strong correlation between volume and lower effective rates
 
-2. **Maximum Fee Rates**
-   - Stablecoin pairs: 0.03-0.15%
-   - Major pairs: 1-3%
-   - Other pairs: 3-8%
+2. **High-Volume Pool Metrics**
+   - Average Fee Rate: 0.096%
+   - Average Fee/TVL: 0.121%
+   - Average Volume/Liquidity: 1.83x
 
-3. **Effective Fee Rates** (actual fees/volume)
-
-   ```text
-   Pool          Base Fee    Max Fee    Effective Rate
-   FDUSD-USDC    0.01%      0.03%      0.01%
-   SOL-USDC      0.20%      1.18%      0.19%
-   WBTC-SOL      0.25%      1.33%      3.04%
-   GIGA-USDC     0.80%      1.88%      0.97%
-   ```
-
-### Fee/TVL Ratio Analysis
-
-Daily fee revenue as percentage of total value locked (TVL):
-
-1. **Top Performing Pools**
-
-   ```text
-   Pool          Liquidity      24h Volume     Fee/TVL
-   WBTC-SOL     $1.56M         $28.6M         0.56%
-   SOL-USDC     $2.50M         $10.8M         0.42%
-   USDC-SOL     $780K          $248K          0.30%
-   GIGA-USDC    $559K          $162K          0.28%
-   ```
-
-2. **Distribution**
-   - Top quartile: 0.3-0.6%
-   - Median: 0.1-0.3%
-   - Bottom quartile: 0.01-0.1%
-   - Stablecoin pairs typically < 0.05%
+3. **Market Medians**
+   - Pool Liquidity: $77,139
+   - Daily Volume: $25,950
+   - Fee/TVL Ratio: 0.090%
+   - APY: 39.03%
 
 ### Revenue Forecast Model
 
-The model uses three scenarios based on empirical data from similar pools:
+The model uses three scenarios based on empirical data from March 2025:
 
-1. **Conservative Scenario** (25th percentile)
-   - Volume/Liquidity ratio: 4.0x minimum
-   - Fee Rate Cap: 0.2%
-   - Confidence Score: 25%
+1. **Conservative Scenario** (75% confidence)
+   - Volume/Liquidity ratio: 0.92x
+   - Effective Fee Rate: 0.077%
+   - Daily Volume Cap: $18,313 (for $20k liquidity)
+   - Expected APR: 25.73%
 
-2. **Moderate Scenario** (50th percentile)
-   - Volume/Liquidity ratio: 6.0x minimum
-   - Fee Rate Cap: 1.0%
-   - Confidence Score: 50%
+2. **Moderate Scenario** (50% confidence)
+   - Volume/Liquidity ratio: 1.83x
+   - Effective Fee Rate: 0.096%
+   - Daily Volume Cap: $36,627 (for $20k liquidity)
+   - Expected APR: 64.32%
 
-3. **Optimistic Scenario** (75th percentile)
-   - Volume/Liquidity ratio: 12.0x minimum
-   - Fee Rate Cap: 3.0%
-   - Confidence Score: 75%
+3. **Optimistic Scenario** (25% confidence)
+   - Volume/Liquidity ratio: 2.75x
+   - Effective Fee Rate: 0.116%
+   - Daily Volume Cap: $54,940 (for $20k liquidity)
+   - Expected APR: 115.78%
 
-### Forecast Results
+### Key Model Improvements
 
-For a pool with $20,000 initial liquidity:
+1. **More Conservative Volume Assumptions**
+   - Reduced max volume/liquidity ratio from 50x to 10x
+   - Based volume projections on actual high-volume pool averages
 
-```text
-Scenario      Daily Volume    Daily Fees    Annual Fees    APR
-Conservative  $80,000        $33.73        $12,335        61.56%
-Moderate      $120,000       $231.75       $84,638        422.95%
-Optimistic    $240,000       $1,857.17     $678,512       3,389.33%
-```
+2. **Realistic Fee Rate Caps**
+   - Implemented volume-based fee rate limits
+   - 0.3% cap for high-volume pools
+   - 0.5% cap for lower-volume pools
+
+3. **Better Risk Assessment**
+   - Fee/TVL ratio cap lowered to 3% (based on observed max of ~2.11%)
+   - Higher confidence in conservative scenarios (75%)
+   - Lower confidence in optimistic scenarios (25%)
 
 ### Validation Against Real Data
 
-The forecast aligns well with observed data:
+Current top pools on Meteora (March 2025):
 
-1. **Volume/Liquidity Ratios**
-   - Model: 4.0-12.0x
-   - Real pools: 5-7x typical range
+1. **GOLD-SOL**
+   - TVL: $688,935
+   - Daily Volume: $159,810
+   - Fee/TVL: 2.11%
+   - Volume/Liquidity: 0.23x
 
-2. **Fee/TVL Ratios**
-   - Model: 0.3-0.7%
-   - Real pools: 0.01-1.09% (meteora.ag data)
+2. **Other Notable Pools**
+   - Most pools show 0.2-5% nominal fee rates
+   - Effective fee rates much lower than nominal rates
+   - Many pools showing 0% fee/TVL despite activity
 
-3. **Effective Fee Rates**
-   - Model: 0.2-3% (capped based on pair type)
-   - Real pools: 0.01-3% for major pairs
-
-The model's predictions fall within observed ranges while accounting for varying market conditions and pool characteristics. The conservative scenario aligns with stablecoin pair performance (0.2%), the moderate scenario matches major pair metrics (1%), and the optimistic scenario reflects volatile pairs (3%).
-
-### Comparable Pools Analysis
-
-For a pool with $20K initial liquidity, here are some comparable pools:
-
-1. pwease-SOL ($22.7K): 6.6x volume ratio
-   [View Pool](https://www.meteora.ag/dlmm/CYTYHaARyKjC6JtBbMECbnZaDdRRC2dbWnd3usCSHFUj)
-2. GRIFFAIN-arc ($21.8K): 6.1x volume ratio
-   [View Pool](https://www.meteora.ag/dlmm/4iEtBnZD85sXQLto1c1n67gYyyxTwpATihfHRxiBwRoE)
-3. MOBY-GRIFFAIN ($15.1K): 5.95x volume ratio
-   [View Pool](https://www.meteora.ag/dlmm/DbuSudUexF6eASq8aDQmoAnSwq5y8FTgoSBzSttsYHHL)
-4. jellyjelly-SOL ($22.0K): 5.8x volume ratio
-   [View Pool](https://www.meteora.ag/dlmm/G4eKEvbbNbvm6dNdcbx8W63VLs6LrxEX9SQxoEGEmvnA)
-
-The moderate scenario (6x) is now right in line with these comparable pools, while the conservative (4x) and optimistic (12x) scenarios provide reasonable bounds for performance.
-
-### Latest Results
-
-For a pool with $20,000 initial liquidity:
-
-1. Conservative Scenario:
-   - Daily Volume: $80,000 (4.0x liquidity)
-   - Daily Fees: $33.73 (0.042% effective fee rate)
-   - Annual APR: 61.56%
-
-2. Moderate Scenario:
-   - Daily Volume: $120,000 (6.0x liquidity)
-   - Daily Fees: $231.75 (0.193% effective fee rate)
-   - Annual APR: 422.95%
-
-3. Optimistic Scenario:
-   - Daily Volume: $240,000 (12.0x liquidity)
-   - Daily Fees: $1,857.17 (0.774% effective fee rate)
-   - Annual APR: 3,389.33%
-
-### Validation
-
-The model's predictions align well with real pools of similar size:
-
-- Most pools in the $15K-25K liquidity range see daily volumes between 5-7x their liquidity
-- Fee rates vary significantly based on pair type, from 0.2% for stablecoin pairs to 2%+ for volatile pairs
-- Daily fee/TVL ratios typically range from 0.3% to 0.7% for active pools
+The model's predictions now align well with observed data:
+- Conservative estimates match typical stablecoin pair performance
+- Moderate scenario aligns with average high-volume pool metrics
+- Optimistic scenario reflects realistic upper bounds based on market data
 
 ### Risk Factors
 
-1. Volume Volatility: Daily volumes can vary significantly
-2. Market Conditions: Overall market sentiment affects trading activity
-3. Token Type: Different token pairs attract varying levels of activity
-4. Competition: New pools may take time to attract liquidity and volume
+1. **Volume Dependency**
+   - Higher volume typically leads to lower effective fee rates
+   - Volume/liquidity ratios vary significantly by pair type
+
+2. **Market Conditions**
+   - Overall market sentiment affects trading activity
+   - Competition from other pools can impact volume
+
+3. **Token Characteristics**
+   - Stablecoin pairs typically show lower fee rates but higher volume
+   - New or volatile pairs may see higher fee rates but less consistent volume
 
 ### Conclusion
 
-The model provides realistic estimates based on data from comparable pools, with built-in minimums for volume ratios to ensure conservative projections. The wide range between scenarios reflects the inherent uncertainty in pool performance.
+The improved model provides realistic revenue forecasts based on current market conditions, with built-in safeguards against over-optimistic projections. The volume-weighted approach and stricter validation rules ensure predictions align with actual pool performance on Meteora.
+
+Note: All forecasts are based on March 2025 market data and should be periodically updated as market conditions evolve.

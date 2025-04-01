@@ -1,0 +1,62 @@
+Meteora Pool Fee Revenue Forecast Report
+Generated at: 2025-03-31 17:28:01
+================================================================================
+
+Input Parameters:
+--------------------------------------------------
+Initial Liquidity: $20,000.00
+Market Cap: $1,000,000.00
+Token Price: $1.0000
+Bin Step: 150
+
+Market Statistics:
+--------------------------------------------------
+Total Active Pools: 190
+High Volume Pools (>$100k daily): 55
+Volume-Weighted Fee Rate: 0.0980%
+Volume-Weighted Fee/TVL Ratio: 0.1071%
+High Volume Pool Metrics:
+  - Avg Fee Rate: 0.0962%
+  - Avg Fee/TVL: 0.1213%
+  - Avg Volume/Liquidity: 1.8313
+
+Revenue Forecasts by Scenario:
+--------------------------------------------------
+
+Conservative Scenario (Confidence: 75.00%)
+Daily Volume: $18,313.36
+Volume/Liquidity Ratio: 0.9157
+Fee/TVL Ratio: 0.0705%
+Effective Fee Rate: 0.0770%
+Daily Fee Revenue: $14.10
+Annual Fee Revenue: $5,145.81
+APR: 25.73%
+
+Moderate Scenario (Confidence: 50.00%)
+Daily Volume: $36,626.73
+Volume/Liquidity Ratio: 1.8313
+Fee/TVL Ratio: 0.1762%
+Effective Fee Rate: 0.0962%
+Daily Fee Revenue: $35.25
+Annual Fee Revenue: $12,864.53
+APR: 64.32%
+
+Optimistic Scenario (Confidence: 25.00%)
+Daily Volume: $54,940.09
+Volume/Liquidity Ratio: 2.7470
+Fee/TVL Ratio: 0.3172%
+Effective Fee Rate: 0.1155%
+Daily Fee Revenue: $63.44
+Annual Fee Revenue: $23,156.15
+APR: 115.78%
+
+Current Market Pool Statistics:
+--------------------------------------------------
+Median Pool Liquidity: $77,138.76
+Median 24h Volume: $25,950.24
+Median Fee/TVL Ratio: 0.0903%
+Median APY: 39.03%
+
+Note: Forecasts are based on current market conditions and historical data.
+High-volume pools typically show lower effective fee rates despite higher nominal fees.
+Fee revenue may vary significantly based on market conditions and competition.
